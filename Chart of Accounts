@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Franchisee P&L Spreadsheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .year-filter {
+            margin-bottom: 10px;
+        }
+
+        .table-container {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        td[contenteditable="true"] {
+            background-color: #f9f9f9;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .tabs {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .tab-container {
+            margin-top: 10px;
+        }
+
+        #sum-output {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        select {
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>YAU Chart of Accounts</h1>
+    
+    <div class="year-filter">
+        <label for="year">Select Year:</label>
+        <select id="year">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+        </select>
+    </div>
+
+    <div id="q1" class="table-container active">
+        <table id="spreadsheet-q1">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Revenue, Total</td><td contenteditable="true">0</td></tr>
+                <tr><td>Coaching Payroll (inc. tax)</td><td contenteditable="true">0</td></tr>
+                <tr><td>Location Rent/Fees</td><td contenteditable="true">0</td></tr>
+                <tr><td>Recruitment/Background Checks</td><td contenteditable="true">0</td></tr>
+                <tr><td>Cost of Goods, Total</td><td contenteditable="true">0</td></tr>
+                <tr class="bold"><td>Gross Profit $</td><td contenteditable="true" class="bold">0</td></tr>
+                <tr class="bold"><td>Gross Profit %</td><td contenteditable="true" class="bold">0%</td></tr>
+                <tr><td>Marketing Expenses</td><td contenteditable="true">0</td></tr>
+                <tr><td>Salary Personnel Expenses (inc. tax & benefits)</td><td contenteditable="true">0</td></tr>
+                <tr><td>G&A Expenses</td><td contenteditable="true">0</td></tr>
+                <tr><td>Royalties</td><td contenteditable="true">0</td></tr>
+                <tr class="bold"><td>Operating Expenses, Total</td><td contenteditable="true" class="bold">0</td></tr>
+                <tr><td>Net Operating Income</td><td contenteditable="true">0</td></tr>
+                <tr><td>Owners W2 or Draw</td><td contenteditable="true">0</td></tr>
+                <tr class="bold"><td>TOTAL NET INCOME</td><td contenteditable="true" class="bold">0</td></tr>
+            </tbody>
+        </table>
+        <button onclick="calculateSum('spreadsheet-q1')">Calculate Totals</button>
+        <button onclick="saveData()">Save & Submit</button>
+        <div id="sum-output"></div>
+    </div>
+
+    <!-- Additional Tables for Q2, Q3, Q4, and Full Year -->
+    <div id="q2" class="table-container">
+        <!-- Same structure as Q1 for Q2 -->
+    </div>
+
+    <div id="q3" class="table-container">
+        <!-- Same structure as Q1 for Q3 -->
+    </div>
+
+    <div id="q4" class="table-container">
+        <!-- Same structure as Q1 for Q4 -->
+    </div>
+
+    <div id="full-year" class="table-container">
+        <!-- Same structure as Q1 for Full Year -->
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('q1')">Q1</div>
+        <div class="tab" onclick="showTab('q2')">Q2</div>
+        <div class="tab" onclick="showTab('q3')">Q3</div>
+        <div class="tab" onclick="showTab('q4')">Q4</div>
+        <div class="tab" onclick="showTab('full-year')">Full Year</div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.table-container');
+            const tabButtons = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+        function calculateSum(tableId) {
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+
+            let revenue = parseFloat(rows[0].cells[1].textContent) || 0;
+            let payroll = parseFloat(rows[1].cells[1].textContent) || 0;
+            let rent = parseFloat(rows[2].cells[1].textContent) || 0;
+            let backgroundChecks = parseFloat(rows[3].cells[1].textContent) || 0;
+            let costOfGoods = parseFloat(rows[4].cells[1].textContent) || 0;
+
+            // Gross Profit $ Calculation
+            let grossProfit = revenue - payroll - rent - backgroundChecks;
+            rows[5].cells[1].textContent = grossProfit.toFixed(2);
+
+            // Gross Profit % Calculation
+            let grossProfitPercent = (revenue > 0) ? (costOfGoods / revenue) * 100 : 0;
+            rows[6].cells[1].textContent = grossProfitPercent.toFixed(1) + "%";
+
+            // Operating Expenses Calculation
+            let marketing = parseFloat(rows[7].cells[1].textContent) || 0;
+            let salary = parseFloat(rows[8].cells[1].textContent) || 0;
+            let ga = parseFloat(rows[9].cells[1].textContent) || 0;
+            let royalties = parseFloat(rows[10].cells[1].textContent) || 0;
+
+            let operatingExpenses = marketing + salary + ga + royalties;
+            rows[11].cells[1].textContent = operatingExpenses.toFixed(2);
+
+            // Net Operating Income Calculation
+            let ownersDraw = parseFloat(rows[13].cells[1].textContent) || 0;
+            let netIncome = grossProfit - operatingExpenses + ownersDraw;
+            rows[12].cells[1].textContent = netIncome.toFixed(2);
+
